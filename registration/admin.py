@@ -4,6 +4,7 @@ from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
 from registration.models import RegistrationProfile
+from registration.signals import user_activated
 
 
 class RegistrationAdmin(admin.ModelAdmin):
@@ -19,7 +20,14 @@ class RegistrationAdmin(admin.ModelAdmin):
         
         """
         for profile in queryset:
-            RegistrationProfile.objects.activate_user(profile.activation_key)
+            activated = RegistrationProfile.objects.activate_user(profile.activation_key)
+            if activated:
+                user_activated.send(
+                    sender=self.__class__,
+                    user=activated,
+                    request=request
+                )
+
     activate_users.short_description = _("Activate users")
 
     def resend_activation_email(self, request, queryset):
