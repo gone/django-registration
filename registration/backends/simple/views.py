@@ -5,8 +5,8 @@ try:
     from django.contrib.auth import get_user_model
 except ImportError:
     from django.contrib.auth.models import User
-else:
-    User = get_user_model()
+    def get_user_model():
+        return User
 
 
 from registration import signals
@@ -23,6 +23,7 @@ class RegistrationView(BaseRegistrationView):
     """
     def register(self, request, **cleaned_data):
         username, email, password = cleaned_data['username'], cleaned_data['email'], cleaned_data['password1']
+        User = get_user_model()
         User.objects.create_user(username, email, password)
 
         new_user = authenticate(username=username, password=password)

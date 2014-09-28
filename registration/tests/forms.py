@@ -2,8 +2,8 @@ try:
     from django.contrib.auth import get_user_model
 except ImportError: # django < 1.5
     from django.contrib.auth.models import User
-else:
-    User = get_user_model()
+    def get_user_model():
+        return User
 from django.test import TestCase
 
 from registration import forms
@@ -22,6 +22,7 @@ class RegistrationFormTests(TestCase):
         """
         # Create a user so we can verify that duplicate usernames aren't
         # permitted.
+        User = get_user_model()
         User.objects.create_user('alice', 'alice@example.com', 'secret')
 
         invalid_data_dicts = [
@@ -86,6 +87,7 @@ class RegistrationFormTests(TestCase):
         """
         # Create a user so we can verify that duplicate addresses
         # aren't permitted.
+        User = get_user_model()
         User.objects.create_user('alice', 'alice@example.com', 'secret')
 
         form = forms.RegistrationFormUniqueEmail(data={'username': 'foo',
